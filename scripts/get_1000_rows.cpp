@@ -5,17 +5,20 @@
 using namespace std;
 
 char tmp[1000111];
+char in_file[88], out_file[88];
 
 int main(int argc, char* argv[]) {
-    freopen(argv[1], "r", stdin);
+    strcat(in_file, "data/");
+    strcat(in_file, argv[1]);
 
-    char out_file[88];
-    memset(out_file, 0, sizeof out_file);
     strcat(out_file, "1000_rows/");
     strcat(out_file, argv[1]);
 
-    cout << out_file << endl;
+    freopen(in_file, "r", stdin);
     freopen(out_file, "w", stdout);
+
+    cerr << "in: " << in_file << endl;
+    cerr << "out: " << out_file << endl;
 
     int N = 1000 + 1;
 
