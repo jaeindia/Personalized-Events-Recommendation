@@ -1,0 +1,6 @@
+data/
+data_zipped/
+weka-3-6-11/
+*.jar
+*.dmg
+*.app/
