@@ -1,57 +1,66 @@
-create database testCleanse;
+DROP DATABASE IF EXISTS EventsRecommendation;
 
-use testCleanse;
+CREATE DATABASE EventsRecommendation;
+
+USE EventsRecommendation;
 
 /*
 user cols
 user_id,locale,birthyear,gender,joinedAt,location,timezone
 */
-
 /* DROP table */
-drop table user;
+DROP TABLE IF EXISTS user;
 
 /* CREATE table */
-create table user(
-    /*id INT NOT NULL AUTO_INCREMENT,*/
-    user_id BIGINT NOT NULL,
-    /*MAX length - 5 */
-    locale VARCHAR(5),
-    /* YEAR - YYYY*/
-    birthyear INT,
-    /* MAX length - 6 */
-    gender VARCHAR(6),
-    joinedAt VARCHAR(40),
-    location VARCHAR(100),
-    timezone INT
-    /*PRIMARY KEY ( id )*/
-);
+CREATE TABLE user (
+	/*id INT NOT NULL AUTO_INCREMENT,*/
+	user_id BIGINT NOT NULL,
+	/*MAX length - 5 */
+	locale VARCHAR(5),
+	/* YEAR - YYYY*/
+	birthyear INT,
+	/* MAX length - 6 */
+	gender VARCHAR(6), joinedAt VARCHAR(40), location VARCHAR(100), timezone INT
+	/*PRIMARY KEY ( id )*/
+	);
 
 /* LOAD csv into table */
-load data local infile 'E:/Aug/KDD/data/users.csv' into table user
-fields terminated by ','
-enclosed by '"'
-lines terminated by '\n'
-(user_id,locale,birthyear,gender,joinedAt,location,timezone);
- 
- 
- 
+LOAD data LOCAL infile 'E:/Aug/KDD/data/users.csv'
+INTO TABLE user fields terminated BY ',' enclosed BY '"' lines terminated BY '\n' (user_id, locale, birthyear, gender, joinedAt, location, timezone);
+
 /* TEST */
-select * from user limit 10;
- 
-select count(*) from user;
- 
- 
-select max(length(locale)) from user;
-select count(*) count, count(locale) locale from user;
- 
-select max(length(gender)) from user;
-select count(*) count, count(gender) locale from user;
+SELECT *
+FROM user limit 10;
 
-select max(length(convert(birthyear, char))) year from user;
-select count(*) count, count(birthyear) year from user;
+SELECT count(*)
+FROM user;
 
-select distinct length(joinedAt) from user;
-select count(*) count, count(joinedAt) joinedAt from user;
+SELECT max(length(locale))
+FROM user;
 
-select max(length(location)) from user;
-select count(*) count, count(location) location from user;
+SELECT count(*) count, count(locale) locale
+FROM user;
+
+SELECT max(length(gender))
+FROM user;
+
+SELECT count(*) count, count(gender) locale
+FROM user;
+
+SELECT max(length(convert(birthyear, CHAR))) year
+FROM user;
+
+SELECT count(*) count, count(birthyear) year
+FROM user;
+
+SELECT DISTINCT length(joinedAt)
+FROM user;
+
+SELECT count(*) count, count(joinedAt) joinedAt
+FROM user;
+
+SELECT max(length(location))
+FROM user;
+
+SELECT count(*) count, count(location) location
+FROM user;
