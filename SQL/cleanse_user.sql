@@ -26,7 +26,11 @@ CREATE TABLE user (
 
 /* LOAD csv into table */
 LOAD data LOCAL infile 'E:/Aug/KDD/data/users.csv'
-INTO TABLE user fields terminated BY ',' enclosed BY '"' lines terminated BY '\n' (user_id, locale, birthyear, gender, joinedAt, location, timezone);
+INTO TABLE user 
+fields terminated BY ',' 
+enclosed BY '"' 
+lines terminated BY '\n' 
+(user_id, locale, birthyear, gender, joinedAt, location, timezone);
 
 /* TEST */
 SELECT *
