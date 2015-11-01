@@ -4,3 +4,5 @@ weka-3-6-11/
 *.jar
 *.dmg
 *.app/
+*.tgz
+spark-1.5.1-bin-hadoop2.4/
