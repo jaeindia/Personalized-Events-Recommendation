@@ -2,7 +2,13 @@
 Create new events table for testing KNN
 */
 
+CREATE DATABASE
+
+IF NOT EXISTS EventsRecommendation;
+
 USE EventsRecommendation;
+
+DROP TABLE events_test;
 
 CREATE TABLE events_test (
 	id BIGINT NOT NULL,
