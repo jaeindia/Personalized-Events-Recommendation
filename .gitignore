@@ -13,3 +13,4 @@ mysql-connector-java-5.1.37/
 metastore_db
 *.swp
 output.txt
+ENV/
