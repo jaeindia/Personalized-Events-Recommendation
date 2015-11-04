@@ -7,6 +7,7 @@ from pyspark import SparkContext
 from pyspark.sql import SQLContext
 from scipy.spatial import KDTree
 
+DEBUG = False
 
 # Initialize sqlContext
 sc = SparkContext()
@@ -14,7 +15,7 @@ sqlContext = SQLContext(sc)
 
 
 # Load data from database
-users = load_db_table(sqlContext, 'user')
+users = load_db_table(sqlContext, 'user').select('user_id', 'birthyear', 'gender', 'timezone')
 users.printSchema()
 
 users = users.filter(users['user_id'] > 0)
@@ -31,7 +32,15 @@ with open('output.txt', 'w') as f:
     f.write('users.count() = {}\n'.format(users.count()))
     for uid, user in enumerate(data):
         neigh = tree.query(user, k=3)
-        f.write('neigh = {}\n'.format(neigh[1]))
 
-        if uid == 100:
+        if DEBUG:
+            f.write(' user = {}\n'.format(users.collect()[uid]))
+            
+            for nid in neigh[1]:
+                f.write('neigh = {}\n'.format(users.collect()[nid]))
+            f.write('\n')
+        else:
+            f.write('neigh = {}\n'.format(neigh[1]))
+
+        if uid == 10:
             break
