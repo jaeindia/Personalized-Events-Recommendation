@@ -6,3 +6,10 @@ weka-3-6-11/
 *.app/
 *.tgz
 spark-1.5.1-bin-hadoop2.4/
+dump.sql
+mysql-connector-java-5.1.37.zip
+mysql-connector-java-5.1.37/
+*.pyc
+metastore_db
+*.swp
+output.txt
