@@ -48,3 +48,45 @@ with collect(u.userId) as collections,e,u
 Match (event:Event)-[invitation:Invited{response:'YES'}]->(users:User)<-[pastinvitations:Invited{response:'YES'}]-(pastevent:Event)-[otherinvitations:Invited{response:'YES'}]->(otherusers:User)
 where event.startTime > pastevent.startTime and id(event) < 1000 and id(event) = id(e)
 return  event.eventId as Event, users.userId as User,count(distinct(u.userId)) as Event_Attendees,count(distinct(pastevent.eventId)) as Past_Events, count(distinct(otherusers.userId)) as Past_Event_Attendees, sum(case when otherusers.userId in collections then 1 else 0 end) as Past_And_Current_Event_Attendees
+
+
+//Query Optimization - Feature 4
+
+
+//AS COUNT
+
+Match
+(e:Event)-[i:Invited{response:'YES'}]->(u:User)
+where id(e) > 12000 and id(e) <= 1000000
+with collect(u.userId) as collections,e,count(distinct(u.userId)) as u
+Match
+(event:Event)-[invitation:Invited{response:'YES'}]->(users:User)
+where id(event) > 12000 and id(event) <= 1000000 and id(event) = id(e)
+with event,users,collections,u
+Match
+(users)<-[pastinvitations:Invited{response:'YES'}]-(pastevent:Event)
+where event.startTime > pastevent.startTime
+with event,users,collections,pastevent,u
+match
+(pastevent)-[otherinvitations:Invited{response:'YES'}]->(otherusers:User)
+return  event.eventId as Event, users.userId as User,event.startTime as Event_Date,u as Event_Attendees,count(distinct(pastevent.eventId)) as Past_Events, count(distinct(otherusers.userId)) as Past_Event_Attendees, sum(case when otherusers.userId in collections then (case when otherusers.userId <> users.userId then 1 else 0 end) else 0 end) as Past_And_Current_Event_Attendees
+
+
+
+//Reduced Functionality - For Speed
+
+Match
+(e:Event)-[i:Invited{response:'YES'}]->(u:User)
+where id(e) = 11787
+with collect(u.userId) as collections,e
+Match
+(event:Event)-[invitation:Invited{response:'YES'}]->(users:User)
+where id(event) = 11787 and id(event) = id(e)
+with event,users,collections
+Match
+(users)<-[pastinvitations:Invited{response:'YES'}]-(pastevent:Event)
+where event.startTime > pastevent.startTime
+with event,users,collections,pastevent
+match
+(pastevent)-[otherinvitations:Invited{response:'YES'}]->(otherusers:User)
+return  event.eventId as Event, users.userId as User,event.startTime as Event_Date,count(distinct(u.userId)) as Event_Attendees,count(distinct(pastevent.eventId)) as Past_Events, count(distinct(otherusers.userId)) as Past_Event_Attendees, sum(case when otherusers.userId in collections then 1 else 0 end) as Past_And_Current_Event_Attendees
