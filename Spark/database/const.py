@@ -1,5 +1,5 @@
 MYSQL_USER = 'root'
-MYSQL_PASS = ''
+MYSQL_PASS = 'root'
 MYSQL_DB   = 'EventsRecommendation'
 MYSQL_HOST = 'localhost'
 MYSQL_PORT = '3306'

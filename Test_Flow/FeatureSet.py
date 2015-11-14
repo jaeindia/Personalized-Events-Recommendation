@@ -13,12 +13,12 @@ def DBConnect():
     global db
     global cur
     global queryStr
-    
+
     db = MySQLdb.connect(host="localhost",  # localhost
                         user="root",  # username
                         passwd="root",  # password
-                        db="eventsrecommendation")  # data base    
-    cur = db.cursor(MySQLdb.cursors.DictCursor) 
+                        db="eventsrecommendation")  # data base
+    cur = db.cursor(MySQLdb.cursors.DictCursor)
 
 
 # Cache for function results
@@ -28,7 +28,7 @@ def memoize(function):
     def helper(*args):
         if args not in cache:
             cache[args] = function(*args)
-        
+
         return cache[args]
 
     return helper
@@ -58,9 +58,9 @@ def getUserAttendance(userid, eventid):
              "WHERE user_id = %s "
              "AND event_id = %s"
     )
-    
+
     cur.execute(queryStr, (userid, eventid))
-    
+
     return cur.fetchone()
 
 
@@ -70,9 +70,9 @@ def getEventAttendance(eventid):
              "FROM featuregroup1 "
              "WHERE event_id = %s"
     )
-    
+
     cur.execute(queryStr, (eventid,))
-    
+
     return cur.fetchone()
 
 
@@ -83,9 +83,9 @@ def getEventAttOfConnections(userid, eventid):
              "WHERE event_id = %s "
              "AND user_id = %s"
     )
-    
+
     cur.execute(queryStr, (eventid, userid))
-    
+
     return cur.fetchone()
 
 

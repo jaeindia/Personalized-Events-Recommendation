@@ -14,3 +14,4 @@ metastore_db
 *.swp
 output.txt
 ENV/
+Output/
