@@ -312,11 +312,11 @@ def featureExtract(nbrUserids):
     
 #     pprint.pprint(featureList)
     
-    with open("../Output/feature.csv", 'wb') as f:   
-        #configure writer to write standard csv file
-        w = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-#         w.writerow(','.join(str(i) for i in xrange(21)))
-        w.writerows(featureList)
+#     with open("../Output/feature.csv", 'wb') as f:   
+#         #configure writer to write standard csv file
+#         w = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+# #         w.writerow(','.join(str(i) for i in xrange(21)))
+#         w.writerows(featureList)
 
     
     # Print run time
