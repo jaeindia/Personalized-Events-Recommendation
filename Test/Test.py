@@ -1,12 +1,8 @@
-'''
-@author: Jayakumar
-'''
 import MySQLdb
 import unicodedata
 from datetime import datetime
-import sys
+import pandas as pdRef
 import pprint
-import csv
 
 # DB connect
 def DBConnect():
@@ -157,9 +153,9 @@ def process(userid, eventDict):
         featureList.append(qryResult['no'])
         featureList.append(qryResult['maybe'])
         featureList.append(qryResult['invited'])
-        featureList.append(qryResult['no'] * 1.0 / ifNull(qryResult['yes'], 1.0))
-        featureList.append(qryResult['maybe'] * 1.0 / ifNull(qryResult['yes'], 1.0))
-        featureList.append(qryResult['invited'] * 1.0 / ifNull(qryResult['yes'], 1.0))
+        featureList.append(qryResult['no'] * 1.0 / ifNull(qryResult['yes'], 1))
+        featureList.append(qryResult['maybe'] * 1.0 / qryResult['yes'])
+        featureList.append(qryResult['invited'] * 1.0 / qryResult['yes'])
     
 
         #     7 - friends attending event
@@ -214,53 +210,22 @@ def process(userid, eventDict):
     return featureDict
 
 
-def getTrainData(useridList):
-    queryStr = ("SELECT DISTINCT user.user_id, "
-            "event_attendees.event_id, "
-            "CASE "
-            "WHEN event_attendees.user_choice = 'YES' "
-            "THEN 1 "
-            "ELSE 0 "
-            "END 'interested',"
-            "CASE "
-            "WHEN event_attendees.user_choice = 'NO' "
-            "THEN 1 "
-            "ELSE 0 "
-            "END 'not_interested' "
-            "FROM user, "
-            "event_attendees "
-            "WHERE user.user_id = event_attendees.user_id "
-            "AND user.user_id in (%s)"
-    )
-    
-    formatString = ','.join(['%s'] * len(useridList))
-     
-    cur.execute(queryStr % formatString, tuple(useridList))
-       
-    return cur.fetchall()
-
-    
-
 # For Test - KNN result will be used in the actual engine
-def getFeatureSet(userids):
-    train = getTrainData(userids)
+def getFeatureSet():
+    train = pdRef.read_csv("../Input/train2.csv")
     trainDict = {}
     useridList = []
     global userInfo
     userInfo = {}
     
-    with open('../Output/train.csv', 'wb') as f:  # Just use 'w' mode in 3.x
-        w = csv.DictWriter(f, train[0].keys())
-        w.writeheader()
-        w.writerows(train)
-    
-    for record in train:
-        userid = record['user_id']
+    for record in train.iterrows():
+        record = record[1]
+        userid = record['user']
         if userid not in trainDict:
             trainDict[userid] = []
         trainDict[userid].append({
-            'eid': record['event_id'],
-            'invited': 1,
+            'eid': record['event'],
+            'invited': record['invited'],
             'interested': record['interested'],
             'not_interested': record['not_interested']
         })
@@ -268,17 +233,13 @@ def getFeatureSet(userids):
         useridList.append(userid)
     
     userInfo = getUserInfo(useridList)
-#     userInfo = KNNSearch.userInfo
     
 #     pprint.pprint(userInfo)
 #     pprint.pprint(trainDict)
-    
-    split = []
+
     featureSet = []
     interested = []
     notinterested = []
-    results = {}
-    keys = []
     
     for userid, events in trainDict.iteritems():
         eventDict = {e['eid']: e['invited'] for e in events}
@@ -292,34 +253,18 @@ def getFeatureSet(userids):
             featureSet.append(featureDict[e['eid']])
             interested.append(e['interested'])
             notinterested.append(e['not_interested'])
-            keys.append((userid, e['eid']))
-    
-    split.append((featureSet,interested, notinterested, keys))
-    
-    return split
+        
+    return (featureSet, interested, notinterested)
 
 
-# Main Run
-# Start Time
-def featureExtract(nbrUserids):
-    startTime = datetime.now()
-    
-    DBConnect()
-    
-#     pprint.pprint(getFeatureSet(nbrUserids))
-    
-    featureList = getFeatureSet(nbrUserids)
-    
-#     pprint.pprint(featureList)
-    
-#     with open("../Output/feature.csv", 'wb') as f:   
-#         #configure writer to write standard csv file
-#         w = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-# #         w.writerow(','.join(str(i) for i in xrange(21)))
-#         w.writerows(featureList)
 
-    
-    # Print run time
-    print datetime.now() - startTime
-    
-    return featureList
+# # Main Run
+# # Start Time
+# startTime = datetime.now()
+# 
+# DBConnect()
+# 
+# pprint.pprint(getFeatureSet())
+# 
+# # Print run time
+# print datetime.now() - startTime
