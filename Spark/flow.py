@@ -35,10 +35,16 @@ for user in users.collect():
 	user_ids.append(user.user_id)
 tree = KDTree(data)
 
+n_experiment = 0
+sum_events = 0
+sum_error = 0
+sum_recommended = 0
 with open('output.txt', 'w') as f:
 	# f.write('users.count() = {}\n'.format(users.count()))
+	K = 1000
+	f.write('k = {}\n'.format(K))
 	for uid, user in enumerate(data):
-		neigh = tree.query(user, k=1000)
+		neigh = tree.query(user, k=K)
 
 		if DEBUG:
 			f.write('{}\n'.format(users.collect()[uid].user_id))
@@ -54,9 +60,45 @@ with open('output.txt', 'w') as f:
 			notinterested = data[2]
 			keys = data[3]
 
-			model = build_decision_tree(sqlContext, features, interested)
+			f.write('# Events = {}\n'.format(len(interested)))
+			error, model = build_decision_tree(sqlContext, features, interested)
+			f.write("Error = {}\n".format(error))
+
+			n_experiment += 1
+			sum_error += error
+			sum_events += len(interested)
+
+			recommend_data = featureExtract(neigh_id, user_ids[uid])[0]
+			print '--------------------'
+			features = recommend_data[0]
+			interested = recommend_data[1]
+			keys = recommend_data[3]
+			print '# events = ', len(interested)
+			recommend_data = sqlContext.createDataFrame(
+					[Row(label=interested[i], features=Vectors.dense(features[i])) for i in xrange(len(features))])
+			recommend_data.printSchema()
+			predictions = model.transform(recommend_data).select("prediction")
+
+			index = 0
+			recommended_events = []
+			for row in predictions.collect():
+				if row.prediction > 0.5:
+					recommended_events.append(keys[index][1])
+				index += 1
+
+			print 'User: ', user_ids[uid]
+			print 'Recommended events: ({})'.format(','.join(map(str, recommended_events)))
+			print 'Recommended: {} events from {} candidates'.format(len(recommended_events), len(interested))
+
+			sum_recommended += len(recommended_events)
 		else:
 			f.write('neigh = {}\n'.format(neigh[1]))
 
-		if uid == 0:
+		if uid == 3:
 			break
+	
+	f.write('-----------------------\n')
+	f.write('# exp    = {}\n'.format(n_experiment))
+	f.write('# events = {}\n'.format(sum_events * 1.0 / n_experiment))
+	f.write('errors   = {}\n'.format(sum_error * 1.0 / n_experiment))
+	f.write('# rec    = {}\n'.format(sum_recommended * 1.0 / n_experiment))
