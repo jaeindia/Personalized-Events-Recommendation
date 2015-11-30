@@ -242,7 +242,7 @@ def getTrainData(useridList):
 	
 
 # For Test - KNN result will be used in the actual engine
-def getFeatureSet(userids):
+def getFeatureSet(userids, recommend_user_id=None):
 	train = getTrainData(userids)
 	trainDict = {}
 	useridList = []
@@ -258,12 +258,21 @@ def getFeatureSet(userids):
 		userid = record['user_id']
 		if userid not in trainDict:
 			trainDict[userid] = []
-		trainDict[userid].append({
-			'eid': record['event_id'],
-			'invited': 1,
-			'interested': record['interested'],
-			'not_interested': record['not_interested']
-		})
+
+		if recommend_user_id is not None:
+			trainDict[userid].append({
+				'eid': record['event_id'],
+				'invited': 1,
+				'interested': 0,
+				'not_interested': 0,
+			})
+		else:
+			trainDict[userid].append({
+				'eid': record['event_id'],
+				'invited': 1,
+				'interested': record['interested'],
+				'not_interested': record['not_interested'],
+			})
 		
 		useridList.append(userid)
 	
@@ -301,14 +310,14 @@ def getFeatureSet(userids):
 
 # Main Run
 # Start Time
-def featureExtract(nbrUserids):
+def featureExtract(nbrUserids, recommend_user_id=None):
 	startTime = datetime.now()
 	
 	DBConnect()
 	
 #	 pprint.pprint(getFeatureSet(nbrUserids))
 	
-	featureList = getFeatureSet(nbrUserids)
+	featureList = getFeatureSet(nbrUserids, recommend_user_id)
 	
 #	 pprint.pprint(featureList)
 	

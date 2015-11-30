@@ -1,12 +1,11 @@
 from pyspark.ml import Pipeline
-from pyspark.ml.classification import DecisionTreeClassifier
+from pyspark.ml.classification import DecisionTreeClassifier, RandomForestClassifier, GBTClassifier
 from pyspark.ml.feature import StringIndexer, VectorIndexer
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.mllib.linalg import Vectors
 from pyspark.sql import Row
 
 
-# Needed for toDF to work
 def build_decision_tree(sqlContext, features, interested):
 	print '-----------------------------------------'
 	data = sqlContext.createDataFrame(
@@ -26,7 +25,9 @@ def build_decision_tree(sqlContext, features, interested):
 	(trainingData, testData) = data.randomSplit([0.8, 0.2])
 
 	# Train a DecisionTree model
-	dt = DecisionTreeClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures")
+	dt = RandomForestClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures")
+#	dt = DecisionTreeClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures")
+#	dt = GBTClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures", maxIter=10)
 
 	# Chain the indexers together with DecisionTree
 	pipeline = Pipeline(stages=[labelIndexer, featureIndexer, dt])
@@ -43,7 +44,6 @@ def build_decision_tree(sqlContext, features, interested):
 	evaluator = MulticlassClassificationEvaluator(
 			labelCol="indexedLabel", predictionCol="prediction", metricName="precision")
 	precision = evaluator.evaluate(predictions)
-	print "Error = {}".format(1 - precision)
 
 	treeModel = model.stages[2]
-	return treeModel
+	return (1 - precision, model)
